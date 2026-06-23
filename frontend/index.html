@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+  <title>ダーツ部アプリ</title>
+
+  <link rel="stylesheet" href="./css/styles.css">
+</head>
+
+<body>
+  <div class="app-shell">
+    <!-- 左サイドバー -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">🎯</div>
+        <div>
+          <p class="brand-subtitle">Company Darts Club</p>
+          <h1 class="brand-title">ダーツ部アプリ</h1>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav" aria-label="メインメニュー">
+        <button
+          class="nav-item"
+          type="button"
+          data-route="home"
+        >
+          <span class="nav-icon">⌂</span>
+          <span>ホーム</span>
+        </button>
+
+        <button
+          class="nav-item is-active"
+          type="button"
+          data-route="events"
+        >
+          <span class="nav-icon">◫</span>
+          <span>開催日一覧</span>
+        </button>
+
+        <button
+          class="nav-item"
+          type="button"
+          data-route="ranking"
+        >
+          <span class="nav-icon">♛</span>
+          <span>ランキング</span>
+        </button>
+
+        <button
+          class="nav-item"
+          type="button"
+          data-route="player"
+        >
+          <span class="nav-icon">◉</span>
+          <span>個人成績</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="current-user">
+          <div class="user-avatar">小</div>
+
+          <div>
+            <p class="user-name">小松崎</p>
+            <p class="user-role">管理者</p>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- メイン画面 -->
+    <main class="main-content">
+      <header class="page-header">
+        <div>
+          <p class="page-eyebrow">DARTS CLUB MANAGEMENT</p>
+          <h2 id="page-title">開催日一覧</h2>
+          <p id="page-description">
+            開催日を選択して、ゲーム結果の確認・入力を行います。
+          </p>
+        </div>
+
+        <div class="header-actions">
+          <button
+            id="create-event-button"
+            class="button button-primary"
+            type="button"
+          >
+            ＋ 開催日を追加
+          </button>
+        </div>
+      </header>
+
+      <!-- JavaScriptで各画面の中身を描画する場所 -->
+      <section id="app-view" class="app-view">
+        <div class="loading-card">
+          画面を読み込んでいます…
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="./js/mock-data.js"></script>
+  <script src="./js/app.js"></script>
+</body>
+</html>
