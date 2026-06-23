@@ -103,6 +103,142 @@ function renderEventsPage() {
   });
 }
 
+function renderEventCreatePage() {
+  pageTitle.textContent = "開催日を追加";
+  pageDescription.textContent =
+    "開催情報と参加予定者を登録します。";
+
+  createEventButton.hidden = true;
+
+  navItems.forEach((navItem) => {
+    navItem.classList.toggle(
+      "is-active",
+      navItem.dataset.route === "events",
+    );
+  });
+
+  const participantOptions = mockData.users
+    .map(
+      (user) => `
+        <label class="participant-option">
+          <input
+            type="checkbox"
+            name="participantIds"
+            value="${user.userId}"
+          >
+          <span>${user.displayName}</span>
+        </label>
+      `,
+    )
+    .join("");
+
+  appView.innerHTML = `
+    <section class="card form-card">
+      <div class="card-header">
+        <div>
+          <p class="section-eyebrow">CREATE EVENT</p>
+          <h3 class="card-title">開催日作成</h3>
+        </div>
+
+        <p class="card-description">
+          今回はフォーム表示とキャンセル操作までを実装します。
+        </p>
+      </div>
+
+      <form class="event-form">
+        <div class="form-grid">
+          <label class="form-field">
+            <span class="form-label">
+              開催日
+              <span class="required-mark">必須</span>
+            </span>
+
+            <input
+              name="eventDate"
+              type="date"
+              required
+            >
+          </label>
+
+          <label class="form-field">
+            <span class="form-label">開始時刻</span>
+
+            <input
+              name="startTime"
+              type="time"
+            >
+          </label>
+
+          <label class="form-field">
+            <span class="form-label">終了時刻</span>
+
+            <input
+              name="endTime"
+              type="time"
+            >
+          </label>
+
+          <label class="form-field form-field-full">
+            <span class="form-label">
+              開催名
+              <span class="required-mark">必須</span>
+            </span>
+
+            <input
+              name="eventName"
+              type="text"
+              placeholder="例：2026年7月ダーツ部"
+              required
+            >
+          </label>
+
+          <label class="form-field form-field-full">
+            <span class="form-label">会場</span>
+
+            <input
+              name="location"
+              type="text"
+              placeholder="例：社内ダーツスペース"
+            >
+          </label>
+        </div>
+
+        <fieldset class="participant-fieldset">
+          <legend class="form-label">参加予定者</legend>
+
+          <div class="participant-options">
+            ${participantOptions}
+          </div>
+        </fieldset>
+
+        <div class="form-actions">
+          <button
+            id="cancel-event-create"
+            class="button button-secondary"
+            type="button"
+          >
+            キャンセル
+          </button>
+
+          <button
+            class="button button-primary"
+            type="button"
+            disabled
+          >
+            開催日を保存（次の実装）
+          </button>
+        </div>
+      </form>
+    </section>
+  `;
+
+  const cancelButton = document.querySelector("#cancel-event-create");
+
+  cancelButton.addEventListener("click", () => {
+    renderRoute("events");
+  });
+}
+
 function renderPlaceholderPage(route) {
   const metadata = pageMetadata[route];
 
@@ -149,7 +285,7 @@ navItems.forEach((navItem) => {
 });
 
 createEventButton.addEventListener("click", () => {
-  window.alert("開催日作成画面は、次に実装します。");
+  renderEventCreatePage();
 });
 
 renderRoute("events");
