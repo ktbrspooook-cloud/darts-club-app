@@ -37,6 +37,37 @@ function formatEventDate(eventDate) {
   }).format(date);
 }
 
+function formatTimeRange(startTime, endTime) {
+  if (startTime && endTime) {
+    return `${startTime}〜${endTime}`;
+  }
+
+  if (startTime) {
+    return `${startTime}〜`;
+  }
+
+  if (endTime) {
+    return `〜${endTime}`;
+  }
+
+  return "時間未定";
+}
+
+function escapeHtml(value) {
+  const escapeMap = {
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#039;",
+  };
+
+  return String(value ?? "").replace(
+    /[&<>"']/g,
+    (character) => escapeMap[character],
+  );
+}
+
 function renderEventsPage() {
   const events = [...mockData.events].sort((a, b) =>
     a.eventDate.localeCompare(b.eventDate),
@@ -45,6 +76,8 @@ function renderEventsPage() {
   const eventCards = events
     .map((event) => {
       const participantCount = event.participantIds.length;
+      const eventName = escapeHtml(event.eventName);
+      const location = escapeHtml(event.location || "会場未定");
 
       return `
         <button
@@ -54,12 +87,14 @@ function renderEventsPage() {
         >
           <div class="event-date-block">
             <span class="event-date">${formatEventDate(event.eventDate)}</span>
-            <span class="event-time">${event.startTime}〜${event.endTime}</span>
+            <span class="event-time">
+              ${formatTimeRange(event.startTime, event.endTime)}
+            </span>
           </div>
 
           <div class="event-main">
-            <strong class="event-name">${event.eventName}</strong>
-            <span class="event-location">📍 ${event.location}</span>
+            <strong class="event-name">${eventName}</strong>
+            <span class="event-location">📍 ${location}</span>
           </div>
 
           <div class="event-meta">
@@ -126,7 +161,7 @@ function renderEventCreatePage() {
             name="participantIds"
             value="${user.userId}"
           >
-          <span>${user.displayName}</span>
+          <span>${escapeHtml(user.displayName)}</span>
         </label>
       `,
     )
@@ -141,11 +176,11 @@ function renderEventCreatePage() {
         </div>
 
         <p class="card-description">
-          今回はフォーム表示とキャンセル操作までを実装します。
+          保存すると仮データへ追加され、開催日一覧へ反映されます。
         </p>
       </div>
 
-      <form class="event-form">
+      <form id="event-create-form" class="event-form">
         <div class="form-grid">
           <label class="form-field">
             <span class="form-label">
@@ -222,20 +257,61 @@ function renderEventCreatePage() {
 
           <button
             class="button button-primary"
-            type="button"
-            disabled
+            type="submit"
           >
-            開催日を保存（次の実装）
+            開催日を保存
           </button>
         </div>
       </form>
     </section>
   `;
 
+  const eventCreateForm = document.querySelector("#event-create-form");
   const cancelButton = document.querySelector("#cancel-event-create");
 
   cancelButton.addEventListener("click", () => {
     renderRoute("events");
+  });
+
+  eventCreateForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+
+    const formData = new FormData(eventCreateForm);
+
+    const eventDate = String(formData.get("eventDate") || "");
+    const eventName = String(formData.get("eventName") || "").trim();
+    const startTime = String(formData.get("startTime") || "");
+    const endTime = String(formData.get("endTime") || "");
+    const location = String(formData.get("location") || "").trim();
+
+    if (!eventDate || !eventName) {
+      window.alert("開催日と開催名を入力してください。");
+      return;
+    }
+
+    const participantIds = [
+      ...document.querySelectorAll(
+        'input[name="participantIds"]:checked',
+      ),
+    ].map((input) => input.value);
+
+    const newEvent = {
+      eventId: `evt_${Date.now()}`,
+      eventDate,
+      eventName,
+      startTime,
+      endTime,
+      location,
+      participantIds,
+    };
+
+    mockData.events.push(newEvent);
+
+    renderRoute("events");
+
+    window.alert(
+      `「${newEvent.eventName}」を仮データとして追加しました。\nブラウザを再読み込みすると、今回の追加内容は消えます。`,
+    );
   });
 }
 
