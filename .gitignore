@@ -1,2 +1,21 @@
-node_modules
+# Node.js
+node_modules/
 .env
+.env.*
+!.env.example
+
+# Terraform: local working directory and state
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+*.tfplan
+crash.log
+crash.*.log
+
+# Terraform override files
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
