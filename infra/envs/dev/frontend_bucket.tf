@@ -1,6 +1,6 @@
 # frontend配信専用のS3バケット。
 # ブラウザからS3へ直接アクセスさせず、
-# 後続フェーズでCloudFront OAC経由だけを許可する。
+# CloudFront OAC経由だけを許可する。
 resource "aws_s3_bucket" "frontend" {
   bucket = "darts-club-frontend-274136495717-apne1"
 
@@ -52,9 +52,9 @@ resource "aws_s3_bucket_versioning" "frontend" {
   }
 }
 
-# HTTPによるS3アクセスを拒否する。
-# 後続フェーズでCloudFront OACを許可するStatementをこのポリシーへ追加する。
-data "aws_iam_policy_document" "frontend_bucket_base" {
+# S3アクセス制御ポリシーをTerraform内で組み立てる。
+data "aws_iam_policy_document" "frontend_bucket" {
+  # HTTPによるS3アクセスを拒否する。
   statement {
     sid    = "DenyInsecureTransport"
     effect = "Deny"
@@ -77,11 +77,32 @@ data "aws_iam_policy_document" "frontend_bucket_base" {
       values   = ["false"]
     }
   }
+
+  # このCloudFront Distributionからの読み取りだけを許可する。
+  statement {
+    sid    = "AllowCloudFrontServicePrincipalReadOnly"
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["cloudfront.amazonaws.com"]
+    }
+
+    actions = ["s3:GetObject"]
+
+    resources = ["${aws_s3_bucket.frontend.arn}/*"]
+
+    condition {
+      test     = "StringEquals"
+      variable = "AWS:SourceArn"
+      values   = [aws_cloudfront_distribution.frontend.arn]
+    }
+  }
 }
 
 resource "aws_s3_bucket_policy" "frontend" {
   bucket = aws_s3_bucket.frontend.id
-  policy = data.aws_iam_policy_document.frontend_bucket_base.json
+  policy = data.aws_iam_policy_document.frontend_bucket.json
 }
 
 output "frontend_bucket" {
